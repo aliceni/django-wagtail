@@ -13,11 +13,12 @@ class FlexPage(Page):
     subtitle = models.CharField(max_length=100, blank=True, null=True)
     content = StreamField(
         [
-            ("title_and_text", blocks.TitileAndTextBlock()),
+            ("title_and_text", blocks.TitleAndTextBlock()),
             ("full_richtext", blocks.RichtextBlock()),
             ("simple_richtext", blocks.SimpleRichtextBlock()),
             ("cards", blocks.CardBlock()),
-            ("cta", blocks.CTABlock())
+            ("cta", blocks.CTABlock()),
+            ("button", blocks.ButtonBlock()),
         ],
         null=True,
         blank=True

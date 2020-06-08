@@ -53,7 +53,7 @@ class BlogDetailPage(Page):
     blog_image = models.ForeignKey('wagtailimages.Image', blank=False, null=True, related_name='+', on_delete=models.SET_NULL)
     content = StreamField(
         [
-            ("title_and_text", blocks.TitileAndTextBlock()),
+            ("title_and_text", blocks.TitleAndTextBlock()),
             ("full_richtext", blocks.RichtextBlock()),
             ("simple_richtext", blocks.SimpleRichtextBlock()),
             ("cards", blocks.CardBlock()),

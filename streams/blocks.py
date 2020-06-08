@@ -1,7 +1,8 @@
 from wagtail.core import blocks
 from wagtail.images.blocks import ImageChooserBlock
 
-class TitileAndTextBlock(blocks.StructBlock):
+
+class TitleAndTextBlock(blocks.StructBlock):
     title = blocks.CharBlock(required=True, help_text='Add your title')
     text = blocks.TextBlock(required=True, help_text='Add additional text')
 
@@ -63,3 +64,29 @@ class CTABlock(blocks.StructBlock):
         template = "streams/cta_block.html"
         icon = "placeholder"
         label = "CTA"
+
+class LinkStructValue(blocks.StructValue):
+    def url(self):
+        page = self.get('button_page')
+        button_url = self.get('button_url')
+        if page:
+            return page.url
+        elif button_url:
+            return button_url
+        else:
+            return None
+
+class ButtonBlock(blocks.StructBlock):
+    button_page = blocks.PageChooserBlock(required=False, help_text='If selected, this url will be used first')
+    button_url = blocks.URLBlock(required=False, help_text='If added, this url will be added secondarily to the button page')
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["test"] = "Hallo"
+        return context
+
+    class Meta:
+        template = "streams/button_block.html"
+        icon = "placeholder"
+        label = "Single Button"
+        value_class = LinkStructValue
