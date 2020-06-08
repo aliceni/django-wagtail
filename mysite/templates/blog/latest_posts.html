@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load wagtailimages_tags %}
+
+{% block content %}
+    <div class="container">
+        <h1>Latest Posts</h1>
+        <h2>A special link is {{ a_special_link }}</h2>
+        {% for post in latest_posts %}
+            <div class="row">
+                <div class="col-sm-4">
+                    {% image post.blog_image fill-250x250 as blog_image %}
+                    <a href="{{ post.url }}">
+                        <img src="{{ blog_image.url }}" alt="{{ blog_image.alt }}">
+                    </a>
+                </div>
+                <div class="col-sm-8">
+                    <a href="{{ post.url }}">
+                        {{ post.custom_title }}
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock content %}
