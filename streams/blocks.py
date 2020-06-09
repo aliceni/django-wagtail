@@ -77,8 +77,8 @@ class LinkStructValue(blocks.StructValue):
             return None
 
 class ButtonBlock(blocks.StructBlock):
-    button_page = blocks.PageChooserBlock(required=False, help_text='If selected, this url will be used first')
-    button_url = blocks.URLBlock(required=False, help_text='If added, this url will be added secondarily to the button page')
+    button_page = blocks.PageChooserBlock(required=False, help_text='If selected, this url will be used first.')
+    button_url = blocks.URLBlock(required=False, help_text='If added, this url will be added secondarily to the button page.')
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)

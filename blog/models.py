@@ -3,11 +3,36 @@ from django.shortcuts import render
 
 from wagtail.core.models import Page
 from wagtail.core.fields import StreamField
-from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
+from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel, MultiFieldPanel
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
+from wagtail.snippets.models import register_snippet
 
 from streams import blocks
+
+@register_snippet
+class BlogAuthor(models.Model):
+    
+    name = models.CharField(max_length=100)
+    website = models.URLField(blank=True, null=True)
+    image = models.ForeignKey('wagtailimages.image', blank=True, null=True, related_name='+', on_delete=models.SET_NULL)
+
+    panels = [
+        MultiFieldPanel([
+            FieldPanel("name"),
+            ImageChooserPanel("image"),
+        ], heading="Name and Image"),
+        MultiFieldPanel([
+            FieldPanel("website"),
+        ], heading="Links")
+    ]
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Blog Author"
+        verbose_name_plural = "Blog Authors"
 
 
 class BlogListingPage(RoutablePageMixin, Page):
@@ -23,6 +48,7 @@ class BlogListingPage(RoutablePageMixin, Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         context["posts"] = BlogDetailPage.objects.live().public()
+        context["authors"] = BlogAuthor.objects.all()
         return context
 
     class Meta:
