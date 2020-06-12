@@ -1,14 +1,28 @@
 from django.db import models
 from django.shortcuts import render
+from django import forms
 
-from wagtail.core.models import Page
+from wagtail.core.models import Page, Orderable
 from wagtail.core.fields import StreamField
-from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel, MultiFieldPanel
+from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel, MultiFieldPanel, InlinePanel
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.snippets.models import register_snippet
+from wagtail.snippets.edit_handlers import SnippetChooserPanel
+from modelcluster.fields import ParentalKey, ParentalManyToManyField
 
 from streams import blocks
+
+
+class BlogAuthorOrderable(Orderable):
+
+    page = ParentalKey("blog.BlogDetailPage", related_name="blog_authors")
+    author = models.ForeignKey('blog.BlogAuthor', on_delete=models.CASCADE, blank=False, null=False)
+
+    panels = [
+        SnippetChooserPanel("author"),
+    ]
+
 
 @register_snippet
 class BlogAuthor(models.Model):
@@ -33,6 +47,28 @@ class BlogAuthor(models.Model):
     class Meta:
         verbose_name = "Blog Author"
         verbose_name_plural = "Blog Authors"
+
+
+@register_snippet
+class BlogCategory(models.Model):
+
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, 
+                            verbose_name='slug',
+                            help_text='A slug to identify posts by this category.')
+    
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('slug'),
+    ]
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Blog Category'
+        verbose_name_plural = 'Blog Categories'
+        ordering = ['name']
 
 
 class BlogListingPage(RoutablePageMixin, Page):
@@ -88,11 +124,18 @@ class BlogDetailPage(Page):
         null=True,
         blank=True
     )
+    categories = ParentalManyToManyField('blog.BlogCategory', blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel("custom_title"),
         ImageChooserPanel("blog_image"),
-        StreamFieldPanel("content")
+        MultiFieldPanel([
+            InlinePanel('blog_authors', label='Author', min_num=1, max_num=4)
+        ], heading='Authors'),
+        MultiFieldPanel([
+            FieldPanel('categories', widget=forms.CheckboxSelectMultiple)
+        ], heading='Categories'),
+        StreamFieldPanel("content"),
     ]
     
     class Meta:
