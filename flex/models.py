@@ -8,7 +8,7 @@ from streams import blocks
 
 # Create your models here.
 class FlexPage(Page):
-    templates = "flex/flex_page.html"
+    template = "flex_page.html"
 
     subtitle = models.CharField(max_length=100, blank=True, null=True)
     content = StreamField(

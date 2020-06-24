@@ -1,6 +1,7 @@
 from django.db import models
 from django.shortcuts import render
 from django import forms
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 from wagtail.core.models import Page, Orderable
 from wagtail.core.fields import StreamField
@@ -73,7 +74,7 @@ class BlogCategory(models.Model):
 
 class BlogListingPage(RoutablePageMixin, Page):
 
-    template = "blog/blog_listing_page.html"
+    template = "blog_listing_page.html"
 
     custom_title = models.CharField(max_length=100, blank=False, null=False, help_text='Overwrites the default title')
 
@@ -83,7 +84,16 @@ class BlogListingPage(RoutablePageMixin, Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        context["posts"] = BlogDetailPage.objects.live().public()
+        all_posts = BlogDetailPage.objects.live().public().order_by('-first_published_at')
+        paginator = Paginator(all_posts, 2) # @todo change to 5 per page
+        page = request.GET.get('page')
+        try:
+            posts = paginator.page(page)
+        except PageNotAnInteger:
+            posts = paginator.page(1)
+        except EmptyPage:
+            posts = paginator.page(paginator.num_pages)
+        context["posts"] = posts
         context["authors"] = BlogAuthor.objects.all()
         return context
 
@@ -112,7 +122,7 @@ class BlogListingPage(RoutablePageMixin, Page):
 
 class BlogDetailPage(Page):
     custom_title = models.CharField(max_length=100, blank=False, null=False, help_text='Overwrites the default title')
-    blog_image = models.ForeignKey('wagtailimages.Image', blank=False, null=True, related_name='+', on_delete=models.SET_NULL)
+    banner_image = models.ForeignKey('wagtailimages.Image', blank=False, null=True, related_name='+', on_delete=models.SET_NULL)
     content = StreamField(
         [
             ("title_and_text", blocks.TitleAndTextBlock()),
@@ -128,7 +138,7 @@ class BlogDetailPage(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel("custom_title"),
-        ImageChooserPanel("blog_image"),
+        ImageChooserPanel("banner_image"),
         MultiFieldPanel([
             InlinePanel('blog_authors', label='Author', min_num=1, max_num=4)
         ], heading='Authors'),
@@ -141,3 +151,50 @@ class BlogDetailPage(Page):
     class Meta:
         verbose_name = "Blog Detail Page"
         verbose_name_plural = "Blog Detail Pages"
+
+class ArticleBlogPage(BlogDetailPage):
+
+    template = "article_blog_page.html"
+
+    subtitle = models.CharField(max_length=100, default='', blank=True, null=True)
+    intro_image = models.ForeignKey(
+        "wagtailimages.Image",
+        blank=True, 
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Best size for this image will be 1400x400"
+    )
+
+    content_panels = Page.content_panels + [
+        FieldPanel("custom_title"),
+        FieldPanel("subtitle"),
+        ImageChooserPanel("banner_image"),
+        ImageChooserPanel("intro_image"),
+        MultiFieldPanel([
+            InlinePanel('blog_authors', label='Author', min_num=1, max_num=4)
+        ], heading='Authors'),
+        MultiFieldPanel([
+            FieldPanel('categories', widget=forms.CheckboxSelectMultiple)
+        ], heading='Categories'),
+        StreamFieldPanel("content"),
+    ]
+
+
+class VideoBlogPage(BlogDetailPage):
+
+    template = "video_blog_page.html"
+
+    youtube_video_id = models.CharField(max_length=30)
+
+    content_panels = Page.content_panels + [
+        FieldPanel("custom_title"),
+        ImageChooserPanel("banner_image"),
+        MultiFieldPanel([
+            InlinePanel('blog_authors', label='Author', min_num=1, max_num=4)
+        ], heading='Authors'),
+        MultiFieldPanel([
+            FieldPanel('categories', widget=forms.CheckboxSelectMultiple)
+        ], heading='Categories'),
+        FieldPanel('youtube_video_id'),
+        StreamFieldPanel("content"),
+    ]

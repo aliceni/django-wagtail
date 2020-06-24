@@ -7,7 +7,7 @@ class TitleAndTextBlock(blocks.StructBlock):
     text = blocks.TextBlock(required=True, help_text='Add additional text')
 
     class Meta:
-        template = "streams/title_and_text_block.html"
+        template = "title_and_text_block.html"
         icon = "edit"
         label = "Title & Text"
 
@@ -27,14 +27,14 @@ class CardBlock(blocks.StructBlock):
     )
 
     class Meta:
-        template = "streams/card_block.html"
+        template = "card_block.html"
         icon = "placeholder"
         label = "Staff Cards"
 
 class RichtextBlock(blocks.RichTextBlock):
 
     class Meta:
-        template = "streams/richtext_block.html"
+        template = "richtext_block.html"
         icon = "doc-full"
         label = "Full RichText"
 
@@ -49,7 +49,7 @@ class SimpleRichtextBlock(blocks.RichTextBlock):
         ]
     
     class Meta:
-        template = "streams/richtext_block.html"
+        template = "richtext_block.html"
         icon = "edit"
         label = "Simple RichText"
 
@@ -61,7 +61,7 @@ class CTABlock(blocks.StructBlock):
     button_text = blocks.CharBlock(required=True, default='Learn More', max_length=40)
 
     class Meta:
-        template = "streams/cta_block.html"
+        template = "cta_block.html"
         icon = "placeholder"
         label = "CTA"
 
@@ -86,7 +86,7 @@ class ButtonBlock(blocks.StructBlock):
         return context
 
     class Meta:
-        template = "streams/button_block.html"
+        template = "button_block.html"
         icon = "placeholder"
         label = "Single Button"
         value_class = LinkStructValue
