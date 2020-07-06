@@ -14,4 +14,5 @@ class SubscriberAdmin(ModelAdmin):
     list_display = ("email", "full_name")
     search_fields = ("email", "full_name")
 
+
 modeladmin_register(SubscriberAdmin)
