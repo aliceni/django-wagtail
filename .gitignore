@@ -1,6 +1,5 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-**/__pycache__/
 *.py[cod]
 
 # C extensions
@@ -57,7 +56,6 @@ ENV/
 
 # Static files
 media/
-static/
 
 # Application data and logs
 *.sqlite3
